@@ -18,6 +18,9 @@ ApplicationWindow {
     // minimumHeight: height * 0.6
     // maximumWidth: width * 0.6
     // minimumWidth: width * 0.6
+    property real carX: 350
+    property real carY: 250
+
     visible: true
     title: qsTr("Car Dachboard V1")
     onWidthChanged: {
@@ -67,7 +70,14 @@ ApplicationWindow {
         id: mapLayout
         visible: Style.mapAreaVisible
         spacing: 0
-        anchors.fill: parent
+        anchors {
+              top: headerLayout.bottom
+              bottom: footerLayout.top
+              left: parent.left
+              right: parent.right
+          }
+
+        // الصورة اللي على الشمال (sidebar)
         Item {
             id : sidebar_left
             Layout.preferredWidth: 620
@@ -78,8 +88,38 @@ ApplicationWindow {
             }
         }
 
+        // الخريطة على اليمين
+        Item {
+            id: mapImageContainer
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
+            Image {
+                id: mapImage
+                anchors.fill: parent
+                // fillMode: Image.Stretch
+                fillMode: Image.PreserveAspectFit
+                source: "carla_map.png"
+            }
+            Image {
+            id: carIcon
+            source: "Map/CarMarker.png" // حط هنا أيقونة السيارة اللي عندك
+            width: 60
+            height: 60
+            anchors.centerIn: undefined
+            x: carX
+            y: carY
+        }
+        }
     }
+    Connections {
+            target: backend
+            function onPositionChanged(x, y) {
+                carX = x
+                carY = y
+            }
+        }
+
 
     CameraPage {
         id: camera
@@ -178,4 +218,7 @@ ApplicationWindow {
             }
         }
     }
+
+
+
 }

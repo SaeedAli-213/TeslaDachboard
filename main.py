@@ -7,19 +7,28 @@ from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 
 from PySide6.QtQml import QQmlApplicationEngine, qmlRegisterSingletonType
-from PySide6.QtCore import QUrl ,QObject, Signal, Slot, QBuffer, QByteArray
+from PySide6.QtCore import QUrl ,QObject, Signal, Slot, QBuffer, QByteArray ,QTimer
 from PySide6.QtLocation import QGeoServiceProvider
 
 import carla
 import numpy as np
 import time 
+import base64
 
-
+def carla_to_map_coords(carla_x, carla_y, map_width, map_height, carla_bounds):
+    carla_min_x, carla_max_x, carla_min_y, carla_max_y = carla_bounds
+    scale_x = map_width / (carla_max_x - carla_min_x)
+    scale_y = map_height / (carla_max_y - carla_min_y)
+    map_x = (carla_x - carla_min_x) * scale_x
+    map_y = map_height - (carla_y - carla_min_y) * scale_y
+    return map_x, map_y
 
 class BackendAPI(QObject):
     front_camera_frame_ready = Signal(str)
     back_camera_frame_ready = Signal(str)
     vehicle_speed_updated = Signal(float)
+    map_image_ready = Signal(str)
+    positionChanged = Signal(float, float)
     collision_warning_signal = Signal(str)  # Signal to trigger a warning in QML
     critical_distance_warning_signal = Signal(str)
     CRITICAL_DISTANCE_THRESHOLD = 3.0
@@ -31,9 +40,12 @@ class BackendAPI(QObject):
             self.client = carla.Client("localhost", 2000)
             self.client.set_timeout(10.0)
             self.world = self.client.get_world()
+            QTimer.singleShot(1000, self.capture_topdown_image)
         except Exception as e:
             print(f"Error connecting to CARLA: {e}")
-            sys.exit(-1)
+            self.client = None
+            self.world = None
+            #sys.exit(-1)
 
         self.vehicle = None
         self.front_sensor = None
@@ -44,22 +56,43 @@ class BackendAPI(QObject):
         self.lidar_sensor = None  # New LIDAR sensor
         self.__spawn_vehicle()
         self.last_frame_time = time.time()
+        self.map_width = map_width
+        self.map_height = map_height
+        self.carla_bounds = carla_bounds
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_position)
+        self.timer.start(100)
+
+
+    def update_position(self):
+            loc = self.vehicle.get_location()
+            map_x, map_y = carla_to_map_coords(loc.x, loc.y, self.map_width, self.map_height, self.carla_bounds)
+            self.positionChanged.emit(map_x, map_y)
 
 
     def __spawn_vehicle(self):
-        blueprint_library = self.world.get_blueprint_library()
-        vehicle_bp = blueprint_library.filter("vehicle.carlamotors.firetruck")[0]
-        spawn_points = self.world.get_map().get_spawn_points()
-        if len(spawn_points) > 75:
-            transform = spawn_points[75]
-            self.vehicle = self.world.try_spawn_actor(vehicle_bp, transform)
-            if self.vehicle:
-                self.vehicle.set_autopilot(True)
-                print("Vehicle spawned successfully.")
+        if not hasattr(self, "world") or self.world is None:
+            print("⚠️ Cannot spawn vehicle: CARLA world is not available.")
+            return
+
+        try:
+            blueprint_library = self.world.get_blueprint_library()
+            vehicle_bp = blueprint_library.filter("vehicle.carlamotors.firetruck")[0]
+            spawn_points = self.world.get_map().get_spawn_points()
+
+            if len(spawn_points) > 75:
+                transform = spawn_points[75]
+                self.vehicle = self.world.try_spawn_actor(vehicle_bp, transform)
+                if self.vehicle:
+                    self.vehicle.set_autopilot(True)
+                    print("✅ Vehicle spawned successfully.")
+                else:
+                    print("❌ Failed to spawn vehicle.")
             else:
-                print("Failed to spawn vehicle.")
-        else:
-            print("No valid spawn points available.")
+                print("⚠️ Not enough spawn points available.")
+        except Exception as e:
+            print(f"❌ Exception while spawning vehicle: {e}")
 
 
     @Slot()
@@ -165,6 +198,56 @@ class BackendAPI(QObject):
             self.back_sensor.destroy()
             self.is_running_back = False
             print("Back camera stopped.")
+    @Slot()
+    def capture_topdown_image(self):
+        try:
+            spectator = self.world.get_spectator()
+            spawn_point = self.world.get_map().get_spawn_points()[0].location
+            top_down_transform = carla.Transform(
+                carla.Location(x=spawn_point.x, y=spawn_point.y, z=200),
+                carla.Rotation(pitch=-70)
+            )
+            spectator.set_transform(top_down_transform)
+
+            blueprint_library = self.world.get_blueprint_library()
+            camera_bp = blueprint_library.find('sensor.camera.rgb')
+            camera_bp.set_attribute('image_size_x', '1480')
+            camera_bp.set_attribute('image_size_y', '1024')
+            camera_bp.set_attribute('fov', '90')
+
+            camera = self.world.spawn_actor(camera_bp, top_down_transform)
+
+            image_captured = {"done": False}
+
+            project_path = Path(__file__).resolve().parent
+            output_path = project_path / "carla_map.png"
+
+            def save_image(img):
+                img.save_to_disk(str(output_path))
+                print(f"✅ Map image saved to: {output_path}")
+                image_captured["done"] = True
+
+            camera.listen(save_image)
+
+            start = time.time()
+            while not image_captured["done"] and (time.time() - start) < 3:
+                time.sleep(0.1)
+
+            camera.stop()
+            camera.destroy()
+
+            if output_path.exists():
+                with open(output_path, "rb") as f:
+                    base64_data = base64.b64encode(f.read()).decode("utf-8")
+                    data_url = f"data:image/png;base64,{base64_data}"
+                    self.map_image_ready.emit(data_url)
+            else:
+                print("❌ Image file not found after capture.")
+
+        except Exception as e:
+            print(f"❌ Failed to capture top-down image: {e}")       
+
+    
 
 
 
@@ -176,9 +259,12 @@ if __name__ == "__main__":
 
     qml_file = Path(__file__).resolve().parent / "main.qml"
 
+    map_width = 1024
+    map_height = 1024
+    carla_bounds = (-200, 200, -200, 200)
+
     backend = BackendAPI()
     engine.rootContext().setContextProperty("backend", backend)
-
 
     engine.load(qml_file)
     if not engine.rootObjects():

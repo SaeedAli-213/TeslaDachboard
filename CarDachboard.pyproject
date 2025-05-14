@@ -2,6 +2,7 @@
     "files": [
         "main.py",
         "main.qml",
+        "carla_map.png",
         "icons/light/background_image.png",
         "Style.qml",
         "icons/dark/background_image.png",
