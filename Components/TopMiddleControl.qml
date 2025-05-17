@@ -16,7 +16,7 @@ RowLayout {
             Style.mapAreaVisible = !Style.mapAreaVisible
         }
     }
-
+   //icons/top_header_icons/Vector 70.svg
     RowLayout {
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         spacing: 15

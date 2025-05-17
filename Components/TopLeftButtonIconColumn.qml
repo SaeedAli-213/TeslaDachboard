@@ -13,12 +13,13 @@ ColumnLayout {
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         icon.source: "../light-icons/Property 1=Default.svg"
     }
-    Icon {
-        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-        icon.source: "../light-icons/Headlights.svg"
-    }
-    Icon {
-        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-        icon.source: "../light-icons/Seatbelt.svg"
-    }
+    // Icon {
+    //     id :headLight
+    //     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+    //     icon.source: "../light-icons/Icons/headlight/white.svg"
+    // }
+    // Icon {
+    //     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+    //     icon.source: "../light-icons/Seatbelt.svg"
+    // }
 }

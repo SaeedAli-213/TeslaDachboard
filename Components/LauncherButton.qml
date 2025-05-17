@@ -7,7 +7,7 @@ import Qt5Compat.GraphicalEffects
 
 Button {
     id: control
-    property bool isGlow: false
+    property bool isGlow: true
     property color textColor: Style.white
     implicitHeight: 128
     implicitWidth: 128

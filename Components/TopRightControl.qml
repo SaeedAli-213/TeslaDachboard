@@ -7,23 +7,33 @@ RowLayout {
     spacing: 48
     property int temp: 72
     property bool airbagOn: false
-    property string currentTime: Qt.formatTime(new Date(), "hh:mm ap")
-    Text {
-        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-        text: "12:00pm"
-        font.family: "Inter"
-        font.pixelSize: 18
-        font.bold: Font.DemiBold
-        color: Style.isDark ? Style.white : Style.black20
-    }
 
+    Timer {
+        interval: 500
+        running: true
+        repeat: true
+        onTriggered:{
+            currentTime.text = Qt.formatDateTime(new Date(), "hh:mm ap")
+        }
+    }
     Text {
-        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-        text: parent.currentTime.toUpperCase()
-        font.family: "Inter"
+        id: currentTime
+        text: Qt.formatDateTime(new Date(), "hh:mm")
         font.pixelSize: 18
+        font.family: "Inter"
         font.bold: Font.DemiBold
         color: Style.isDark ? Style.white : Style.black20
+        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+    }
+    Text {
+        id: currentDate
+        text: Qt.formatDateTime(new Date(), "dd/MM/yyyy")
+        font.pixelSize: 18
+        font.family: "Inter"
+        font.bold: Font.DemiBold
+        color: Style.isDark ? Style.white : Style.black20
+        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+
     }
 
     Text {

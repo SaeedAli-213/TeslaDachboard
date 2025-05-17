@@ -22,7 +22,7 @@ ApplicationWindow {
     property real carY: 250
 
     visible: true
-    title: qsTr("Car Dachboard V1")
+    title: qsTr("Car Dachboard V2")
     onWidthChanged: {
         if (adaptive)
             adaptive.updateWindowWidth(root.width)
@@ -62,10 +62,17 @@ ApplicationWindow {
     TopLeftButtonIconColumn {
         z: 99
         anchors.left: parent.left
-        anchors.top: headerLayout.bottom
-        anchors.leftMargin: 18
+        // anchors.top: headerLayout.bottom
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.leftMargin: 25
     }
-
+    TopRightButtonIconColumn {
+        z: 99
+        anchors.right: parent.right
+        // anchors.top: headerLayout.bottom
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.rightMargin: 25
+    }
     RowLayout {
         id: mapLayout
         visible: Style.mapAreaVisible
@@ -77,7 +84,6 @@ ApplicationWindow {
               right: parent.right
           }
 
-        // الصورة اللي على الشمال (sidebar)
         Item {
             id : sidebar_left
             Layout.preferredWidth: 620
@@ -88,7 +94,6 @@ ApplicationWindow {
             }
         }
 
-        // الخريطة على اليمين
         Item {
             id: mapImageContainer
             Layout.fillWidth: true
@@ -103,7 +108,7 @@ ApplicationWindow {
             }
             Image {
             id: carIcon
-            source: "Map/CarMarker.png" // حط هنا أيقونة السيارة اللي عندك
+            source: "Map/CarMarker.png"
             width: 60
             height: 60
             anchors.centerIn: undefined
@@ -151,29 +156,42 @@ ApplicationWindow {
 
     Component {
         id: backgroundImage
+
         Image {
-            source: Style.getImageBasedOnTheme()
+            source:"icons/dark/Car.jpg"
+            Image {
+                id: topBar
+                width: 1357
+                source: "icons/top_header_icons/Vector70.svg"
+
+                anchors{
+                    top: parent.top
+                    topMargin: 50
+                    horizontalCenter: parent.horizontalCenter
+                }
+            }
+            // source: Style.getImageBasedOnTheme()
             Icon {
                 icon.source: Style.isDark ? "icons/car_action_icons/dark/lock.svg" : "icons/car_action_icons/lock.svg"
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                anchors.verticalCenterOffset: -350
-                anchors.horizontalCenterOffset: 37
+                anchors.verticalCenterOffset: -200
+                anchors.horizontalCenterOffset: 220
             }
 
             Icon {
                 icon.source: Style.isDark ? "icons/car_action_icons/dark/Power.svg" : "icons/car_action_icons/Power.svg"
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                anchors.verticalCenterOffset: -77
-                anchors.horizontalCenterOffset: 550
+                anchors.verticalCenterOffset: -180
+                anchors.horizontalCenterOffset: -280
             }
 
             ColumnLayout {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                anchors.verticalCenterOffset: -230
-                anchors.horizontalCenterOffset: 440
+                anchors.verticalCenterOffset: -200
+                anchors.horizontalCenterOffset: 400
 
                 Text {
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
@@ -197,7 +215,7 @@ ApplicationWindow {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.verticalCenterOffset: -180
-                anchors.horizontalCenterOffset: -350
+                anchors.horizontalCenterOffset: -480
 
                 Text {
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
@@ -218,6 +236,38 @@ ApplicationWindow {
             }
         }
     }
+    // Gauge {
+    //     id: speedLabel
+    //     width: 450
+    //     height: 450
+    //     property bool accelerating
+    //     value: accelerating ? maximumValue : 0
+    //     maximumValue: 250
+
+    //     anchors.top: parent.top
+    //     anchors.topMargin:Math.floor(parent.height * 0.25)
+    //     anchors.horizontalCenter: parent.horizontalCenter
+
+    //     Component.onCompleted: forceActiveFocus()
+
+    //     Behavior on value { NumberAnimation { duration: 1000 }}
+
+    //     Keys.onSpacePressed: accelerating = true
+    //     Keys.onReleased: {
+    //         if (event.key === Qt.Key_Space) {
+    //             accelerating = false;
+    //             event.accepted = true;
+    //         }else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+    //             radialBar.accelerating = false;
+    //             event.accepted = true;
+    //         }
+    //     }
+
+    //     Keys.onEnterPressed: radialBar.accelerating = true
+    //     Keys.onReturnPressed: radialBar.accelerating = true
+    // }
+
+
 
 
 

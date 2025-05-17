@@ -51,7 +51,7 @@ Item {
     RowLayout {
         id: middleLayout
         anchors.centerIn: parent
-        spacing: 20
+        spacing: 35
 
         Icon {
             icon.source: "../icons/app_icons/phone.svg"

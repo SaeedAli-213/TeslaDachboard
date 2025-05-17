@@ -25,11 +25,12 @@ Button {
 
     background: Rectangle {
         anchors.fill: parent
-        radius: width
-        color: "transparent"
+        // radius: width
+        // color: Style.black60
+        color : "transparent"
         border.width: 0
         border.color: "transparent"
-        visible: false
+        visible: true
         Behavior on color {
             ColorAnimation {
                 duration: 200

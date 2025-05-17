@@ -6,6 +6,7 @@
         "icons/light/background_image.png",
         "Style.qml",
         "icons/dark/background_image.png",
+        "icons/dark/Dashboard.svg",
         "icons/main control bar.svg",
         "icons/app_icons/zoom.svg",
         "icons/app_icons/wiper.svg",
@@ -40,6 +41,7 @@
         "icons/app_icons/recording.svg",
         "light-icons/Icons/headlight/white.svg",
         "light-icons/Headlight2.svg",
+        "light-icons/Low_beam_headlights_white.svg",
         "light-icons/Headlights.svg",
         "light-icons/Icons.svg",
         "light-icons/Property 1=Default.svg",
@@ -116,16 +118,21 @@
         "icons/car_action_icons/dark/Power.svg",
         "icons/car_action_icons/dark/lock.svg",
         "icons/top_header_icons/dark/icons.svg",
+        "icons/top_header_icons/Vector70.svg",
         "icons/top_header_icons/dark/lock.svg",
         "icons/top_header_icons/dark/Sentry.svg",
         "animIcons/icons8-car.gif",
         "animIcons/icons8-destination.gif",
         "icons/dark/sidebar-light.png",
+        "icons/dark/Car.png",
+        "icons/dark/Car.jpg",
         "icons/top_header_icons/unlock.png",
         "icons/top_header_icons/dark/unlock.png",
         "Components/CameraPage.qml",
         "icons/app_icons/battery.svg",
         "Components/BatteryPage.qml",
-        "Components/CustomButton.qml"
+        "Components/CustomButton.qml",
+        "Components/TopRightButtonIconColumn.qml",
+        "Components/Gauge.qml"
     ]
 }
